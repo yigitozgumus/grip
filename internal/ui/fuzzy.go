@@ -7,6 +7,7 @@ import (
 
 	fuzzyfinder "github.com/ktr0731/go-fuzzyfinder"
 	"github.com/yigitozgumus/grip/internal/config"
+	"github.com/yigitozgumus/grip/internal/ui/selector"
 )
 
 // ProjectItem represents a selectable project
@@ -15,77 +16,35 @@ type ProjectItem struct {
 	Repo *config.Repository
 }
 
-// SelectProject opens a fuzzy finder to select a project
+// SelectProject opens a Bubble Tea TUI to select a project
 func SelectProject(repos map[string]*config.Repository) (*ProjectItem, error) {
 	if len(repos) == 0 {
 		return nil, fmt.Errorf("no repositories found")
 	}
 
-	items := make([]ProjectItem, 0, len(repos))
-	for path, repo := range repos {
-		items = append(items, ProjectItem{
-			Path: path,
-			Repo: repo,
-		})
-	}
-
-	idx, err := fuzzyfinder.Find(
-		items,
-		func(i int) string {
-			name := filepath.Base(items[i].Path)
-			branch := items[i].Repo.CurrentBranch
-			return fmt.Sprintf("  📁 %-25s  ⎇ %s", name, branch)
-		},
-		fuzzyfinder.WithPreviewWindow(func(i, w, _ int) string {
-			if i == -1 {
-				return ""
-			}
-			item := items[i]
-
-			// Build a nicely formatted preview
-			var sb strings.Builder
-			sb.WriteString("╭─────────────────────────────────────╮\n")
-			sb.WriteString("│  📂 PROJECT DETAILS                 │\n")
-			sb.WriteString("╰─────────────────────────────────────╯\n\n")
-
-			sb.WriteString(fmt.Sprintf("  📁 Name:     %s\n", filepath.Base(item.Path)))
-			sb.WriteString(fmt.Sprintf("  🌿 Branch:   %s\n", item.Repo.CurrentBranch))
-			sb.WriteString(fmt.Sprintf("  📍 Path:     %s\n\n", item.Path))
-
-			sb.WriteString("╭─────────────────────────────────────╮\n")
-			sb.WriteString("│  🌳 BRANCHES                        │\n")
-			sb.WriteString("╰─────────────────────────────────────╯\n\n")
-
-			sb.WriteString(fmt.Sprintf("  Local:  %d branches\n", len(item.Repo.LocalBranches)))
-			sb.WriteString(fmt.Sprintf("  Remote: %d branches\n", len(item.Repo.RemoteBranches)))
-
-			// Show first few local branches
-			if len(item.Repo.LocalBranches) > 0 {
-				sb.WriteString("\n  Local branches:\n")
-				for j, b := range item.Repo.LocalBranches {
-					if j >= 5 {
-						sb.WriteString(fmt.Sprintf("    ... and %d more\n", len(item.Repo.LocalBranches)-5))
-						break
-					}
-					marker := "  "
-					if b == item.Repo.CurrentBranch {
-						marker = "→ "
-					}
-					sb.WriteString(fmt.Sprintf("    %s%s\n", marker, b))
-				}
-			}
-
-			return sb.String()
-		}),
-		fuzzyfinder.WithHeader("  ↑/↓: navigate  │  enter: select  │  esc: cancel  │  type to filter"),
-		fuzzyfinder.WithPromptString("🔍 "),
-	)
+	result, err := selector.Run(repos, selector.Options{
+		Title:    "Select Project",
+		ShowHelp: true,
+	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return &items[idx], nil
+	if result.Cancelled || result.Selected == nil {
+		return nil, fmt.Errorf("selection cancelled")
+	}
+
+	// Find the original repo from the config
+	repo, ok := repos[result.Selected.Path]
+	if !ok {
+		return nil, fmt.Errorf("repository not found: %s", result.Selected.Path)
+	}
+
+	return &ProjectItem{
+		Path: result.Selected.Path,
+		Repo: repo,
+	}, nil
 }
 
 // BranchItem represents a selectable branch
