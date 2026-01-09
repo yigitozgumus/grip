@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go mod tidy:*)",
+      "Bash(make build:*)",
+      "Bash(./bin/grip:*)"
+    ]
+  }
+}
