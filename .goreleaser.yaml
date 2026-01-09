@@ -63,6 +63,7 @@ brews:
   - repository:
       owner: yigitozgumus
       name: homebrew-formulae
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     directory: Formula
     homepage: https://github.com/yigitozgumus/grip
     description: Fast project and branch switching for git workspaces
