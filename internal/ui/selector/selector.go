@@ -1,6 +1,8 @@
 package selector
 
 import (
+	"os"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/yigitozgumus/grip/internal/config"
 )
@@ -13,7 +15,7 @@ func Run(repos map[string]*config.Repository, opts Options) (Result, error) {
 
 	model := New(repos, opts)
 
-	p := tea.NewProgram(model, tea.WithAltScreen())
+	p := tea.NewProgram(model, tea.WithAltScreen(), tea.WithOutput(os.Stderr))
 
 	finalModel, err := p.Run()
 	if err != nil {
@@ -36,7 +38,7 @@ func RunWithItems(items []RepoItem, opts Options) (Result, error) {
 
 	model := NewWithItems(items, opts)
 
-	p := tea.NewProgram(model, tea.WithAltScreen())
+	p := tea.NewProgram(model, tea.WithAltScreen(), tea.WithOutput(os.Stderr))
 
 	finalModel, err := p.Run()
 	if err != nil {
