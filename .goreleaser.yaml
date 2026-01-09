@@ -62,7 +62,7 @@ release:
 brews:
   - repository:
       owner: yigitozgumus
-      name: homebrew-tap
+      name: homebrew-formulae
     directory: Formula
     homepage: https://github.com/yigitozgumus/grip
     description: Fast project and branch switching for git workspaces
