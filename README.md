@@ -29,10 +29,10 @@ make build
 make install  # Copies to ~/.local/bin/
 ```
 
-### Homebrew (coming soon)
+### Homebrew
 
 ```bash
-brew install yigitozgumus/tap/grip
+brew install yigitozgumus/homebrew-formulae/grip
 ```
 
 ## Setup
