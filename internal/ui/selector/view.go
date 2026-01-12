@@ -71,7 +71,7 @@ func (m Model) renderItem(item RepoItem, isSelected bool) string {
 	icon := m.styles.FolderIcon.Render("📁")
 
 	// Pad the raw name first, then apply styling
-	const nameWidth = 18
+	const nameWidth = 30
 	paddedName := item.Name
 	if len(item.Name) < nameWidth {
 		paddedName = item.Name + strings.Repeat(" ", nameWidth-len(item.Name))
